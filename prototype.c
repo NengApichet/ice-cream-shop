@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include<conio.h>
+#include <conio.h>
 #define CARGO 20
 
 //Global variables
@@ -15,24 +15,27 @@ int position;
 int select;
 int i;
 
-struct stock {
-    char name[15];
+struct stock
+{
+    char name[30];
     float price;
     int remain;
 } products[CARGO] = {
-                        {"Chocolate",100, 10},
-                        {"Cookies and cream",150, 10},
-                        {"Green tea",200, 10},
-                        {"Mango",250, 10},
-                        {"Raspberry Ripple",300, 10},
-                        {"Strawberry",350, 10},
-                        {"Vanilla",400, 10},
-                        {"Hokey pokey",450, 10},
-                        {"Cotton candy",500, 10},
-                        {"Grape",550, 10},
-                    };
+    {"Chocolate", 100, 10},
+    {"Cookies and cream", 150, 10},
+    {"Green tea", 200, 10},
+    {"Mango", 250, 10},
+    {"Raspberry Ripple", 300, 10},
+    {"Strawberry", 350, 10},
+    {"Vanilla", 400, 10},
+    {"Hokey pokey", 450, 10},
+    {"Cotton candy", 500, 10},
+    {"Grape", 550, 10},
+};
 
 //Function prototypes
+void intro();
+void center(char *s, int width);
 void show(int person);
 void search();
 void buy();
@@ -43,63 +46,128 @@ void p_del();
 void s_add();
 void s_del();
 void p_edit();
+void red();
+void cyan();
+void green();
+void yellow();
+void reset();
 char *check_stock(int step);
 int find(int choose);
 
-void show(int person) {
-     printf("Name\t\t\t\tPrice\t\tStock\n");
-     for (i = 0;i < d_cargo;++i)
-     {
-        printf("%02d. %-15s\t\t%.2f Baht", i+1, products[i].name, products[i].price);
-        if (person)
-            printf("\t%d\n", products[i].remain);
-        else
-            printf("\t%s\n", check_stock(i));
-     }
+void red()
+{
+    printf("\033[1;31m");
 }
 
-char *check_stock(int step) {
+void cyan()
+{
+    printf("\033[0;36m");
+}
+
+void yellow()
+{
+    printf("\033[1;33m");
+}
+
+void green()
+{
+    printf("\033[0;32m");
+}
+
+void reset()
+{
+    printf("\033[0m");
+}
+
+void intro()
+{
+    cyan();
+    printf("\n\n");
+    printf("\t****************************************************************************\n");
+    printf("\t*    _                                                _                    *\n");
+    printf("\t*   (_)                                              | |                   *\n");
+    printf("\t*    _  ___ ___    ___ _ __ ___  __ _ _ __ ___    ___| |__   ___  _ __     *\n");
+    printf("\t*   | |/ __/ _ \\  / __| '__/ _ \\/ _` | '_ ` _ \\  / __| '_ \\ / _ \\| '_ \\    *\n");
+    printf("\t*   | | (_|  __/ | (__| | |  __/ (_| | | | | | | \\__ \\ | | | (_) | |_) |   *\n");
+    printf("\t*   |_|\\___\\___|  \\___|_|  \\___|\\__,_|_| |_| |_| |___/_| |_|\\___/| .__/    *\n");
+    printf("\t*                                                                | |       *\n");
+    printf("\t*                                                                |_|       *\n");
+    printf("\t****************************************************************************\n");
+    printf("\n\n");
+    reset();
+}
+
+void center(char *txt, int width)
+{
+    int padlen1 = (width - strlen(txt)) / 2;
+    int padlen2 = padlen1;
+    if ((padlen1 * 2 + strlen(txt)) != width)
+        padlen1++;
+    printf("%*s%s%*s\n", padlen1, "", txt, padlen2, "");
+}
+
+void show(int person)
+{
+    printf("\t ------------------------------------------------------------------ \n");
+    printf("\t|  No. | Name\t\t\t\t| Price\t\t| Stock    |\n");
+    printf("\t ------------------------------------------------------------------ \n");
+    for (i = 0; i < d_cargo; ++i)
+    {
+        printf("\t|  %02d. | %-15s\t\t| %.2f Baht", i + 1, products[i].name, products[i].price);
+        if (person)
+            printf("\t| %d\t   |\n", products[i].remain);
+        else
+            printf("\t| %s |\n", check_stock(i));
+    }
+    printf("\t ------------------------------------------------------------------ \n");
+}
+
+char *check_stock(int step)
+{
     if (products[step].remain > 0)
         return "In stock";
     return "Out of stock";
 }
 
-int find(int choose) {
-    for (i = 0;i < d_cargo;++i) {
-        if (choose-1 == i)
+int find(int choose)
+{
+    for (i = 0; i < d_cargo; ++i)
+    {
+        if (choose - 1 == i)
             return i;
     }
 };
 
-void search() {
+void search()
+{
     system("cls");
-    char p_name[15], find[15];
-    int c = 0,  n = 1, keep[20];
+    char p_name[30], find[30];
+    int c = 0, n = 1, keep[20];
     printf("search\n");
     fflush(stdin);
     scanf("%[^\n]s", &p_name);
-    for (i = 0;i < d_cargo; ++i)
+    for (i = 0; i < d_cargo; ++i)
     {
-        for (int j = 0;j < strlen(products[i].name); ++j)
+        for (int j = 0; j < strlen(products[i].name); ++j)
         {
-             for (int k = 0; k < strlen(p_name); ++k)
+            for (int k = 0; k < strlen(p_name); ++k)
             {
                 /*if (tolower(p_name[k]) == tolower(products[i].name[j]))
                     keep[c++] = i;
                 */
-                find[k] = tolower(products[i].name[k+j]);
-                find[k+1] = '\0';
+                find[k] = tolower(products[i].name[k + j]);
+                find[k + 1] = '\0';
             }
 
-           //printf("%s\n", find);
-           if (!strcmp(find, p_name))
+            //printf("%s\n", find);
+            if (!strcmp(find, p_name))
                 keep[c++] = i;
         }
-
     }
-    for (i = 0;i < c; ++i) {
-        if (keep[i] != keep[i+1])
-            printf("%02d. %s %.2f Baht\n",n++, products[keep[i]].name, products[keep[i]].price);
+    for (i = 0; i < c; ++i)
+    {
+        if (keep[i] != keep[i + 1])
+            printf("%02d. %s %.2f Baht\n", n++, products[keep[i]].name, products[keep[i]].price);
     }
     if (c == 0)
         printf("not found\n");
@@ -107,11 +175,12 @@ void search() {
     getch();
 }
 
-void buy() {
+void buy()
+{
     system("cls");
     int count;
-    float money,total;
-    show(person=0);
+    float money, total;
+    show(person = 0);
     printf("buy (1-10) : ");
     scanf("%d", &choose);
     printf("amount (number only) : ");
@@ -125,7 +194,7 @@ void buy() {
     }
     else
     {
-        total = products[position].price*count;
+        total = products[position].price * count;
         printf("\n---------------------\n");
         printf("Name : %s x %d\n", products[position].name, count);
         printf("Total : %.2f Baht\n", total);
@@ -138,7 +207,7 @@ void buy() {
             printf("\n---------------------\n");
             printf("Your cash : ");
             scanf("%f", &money);
-            printf("Balance : %.2f\n", money-total);
+            printf("Balance : %.2f\n", money - total);
             printf("Thankyou!!!\n");
             printf("---------------------\n");
             products[position].remain -= count;
@@ -146,39 +215,61 @@ void buy() {
     }
     printf("PRESS ANY KEY TO CONTINUE\n");
     getch();
-
 }
 
-void user() {
+void user()
+{
     system("cls");
-    printf("What do you want?\n");
-    printf("1.Buy Products\n");
-    printf("2.Search Products\n");
+    intro();
+    green();
+    printf("\t\t1. Buy Products\n");
+    printf("\t\t2. Search Products\n");
+    red();
+    printf("\t\t3. Exit\n");
+    reset();
+    printf("\nPlease choose a number\n");
+    printf("Enter number : ");
     scanf("%d", &select);
-    switch(select)
+    switch (select)
     {
-        case 1: buy();;
-                break;
-        case 2: search();
-                break;
-        default: printf("Wrong choice\n");
-                 printf("PRESS ANY KEY TO CONTINUE\n");
-                 getch();
+    case 1:
+        buy();
+        ;
+        break;
+    case 2:
+        search();
+        break;
+    case 3:
+        break;
+    default:
+        red();
+        printf("\nWrong number\n");
+        printf("Press any key to continue\n");
+        reset();
+        getch();
     }
 }
 
-void s_add() {
-    printf("Select Product : ");
+void s_add()
+{
+    yellow();
+    printf("\t--- Add Stock ---\n");
+    printf("\tSelect Product (1-%d): ", d_cargo);
     scanf("%d", &choose);
+    reset();
     printf("Add : ");
     scanf("%d", &amount);
     position = find(choose);
     products[position].remain += amount;
 }
 
-void s_del() {
-    printf("Select Product : ");
+void s_del()
+{
+    yellow();
+    printf("\t--- Del Stock ---\n");
+    printf("\tSelect Product (1-%d): ", d_cargo);
     scanf("%d", &choose);
+    reset();
     printf("Del : ");
     scanf("%d", &amount);
     position = find(choose);
@@ -187,7 +278,11 @@ void s_del() {
         products[position].remain = 0;
 }
 
-void p_add() {
+void p_add()
+{
+    yellow();
+    printf("\t--- Add Product ---\n");
+    reset();
     printf("Name Product : ");
     scanf("%s", &products[d_cargo].name);
     printf("Price Product : ");
@@ -197,10 +292,14 @@ void p_add() {
     d_cargo++;
 }
 
-void p_del() {
-    printf("Select Product : ");
+void p_del()
+{
+    yellow();
+    printf("\t--- Del Product ---\n");
+    printf("\tSelect Product (1-%d): ", d_cargo);
     scanf("%d", &choose);
-    if(choose < 0 || choose > d_cargo)
+    reset();
+    if (choose < 0 || choose > d_cargo)
     {
         printf("Invalid Number! Please enter number between 1 to %d\n", d_cargo);
     }
@@ -210,102 +309,157 @@ void p_del() {
         scanf(" %c", &submit);
         if (toupper(submit) == 'Y')
         {
-            for(i = choose-1; i < d_cargo-1; ++i)
+            for (i = choose - 1; i < d_cargo - 1; ++i)
                 products[i] = products[i + 1];
             d_cargo--;
         }
     }
-
 }
 
-void p_edit() {
-    printf("Select Product : ");
+void p_edit()
+{
+    yellow();
+    printf("\t--- Edit Product ---\n");
+    printf("\tSelect Product (1-%d): ", d_cargo);
     scanf("%d", &choose);
-    printf("1.EDIT Name\n");
-    printf("2.EDIT Price\n");
-    printf("3.EDIT Stock\n");
+    green();
+    printf("\t1. Edit Name\n");
+    printf("\t2. Edit Price\n");
+    printf("\t3. Edit Stock\n");
+    reset();
+    printf("\nPlease choose a number\n");
+    printf("Enter number : ");
     scanf("%d", &select);
-    switch(select)
+    printf("\n");
+    choose -= 1;
+    switch (select)
     {
-        case 1: printf("Old Name Product : %s\n", products[choose].name);
-                printf("New Name Product : ");
-                scanf("%s", &products[choose].name);
-                break;
-        case 2: printf("Old Price Product : %.2f\n", products[choose].price);
-                printf("New Price Product : ");
-                scanf("%f", &products[choose].price);
-                break;
-        case 3: printf("Old Remain Product : %d\n", products[choose].remain);
-                printf("New Remain Product : ");
-                scanf("%d", &products[choose].remain);
-                break;
-        default: printf("Wrong choice\n");
-                 printf("Click some character from keyboard\n");
-                 getch();
+    case 1:
+        printf("Old Name Product : %s\n", products[choose].name);
+        printf("New Name Product : ");
+        scanf("%s", &products[choose].name);
+        break;
+    case 2:
+        printf("Old Price Product : %.2f Baht\n", products[choose].price);
+        printf("New Price Product : ");
+        scanf("%f", &products[choose].price);
+        break;
+    case 3:
+        printf("Old Remain Product : %d\n", products[choose].remain);
+        printf("New Remain Product : ");
+        scanf("%d", &products[choose].remain);
+        break;
+    default:
+        red();
+        printf("\nWrong number\n");
+        printf("Press any key to continue\n");
+        reset();
+        getch();
     }
 }
 
-void admin() {
+void admin()
+{
     while (1)
     {
         system("cls");
-        show(person=1);
-        printf("Options\n");
-        printf("1.ADD Stock\n");
-        printf("2.DEL Stock\n");
-        printf("3.ADD Product\n");
-        printf("4.DEL Product\n");
-        printf("5.EDIT Product\n");
-        printf("6.EXIT\n");
-        printf("Select number : ");
+        show(person = 1);
+        yellow();
+        printf("\n\t--- Options ---\n");
+        cyan();
+        printf("\t1. Add Stock\n");
+        printf("\t2. Del Stock\n");
+        printf("\t3. Add Product\n");
+        printf("\t4. Del Product\n");
+        printf("\t5. Edit Product\n");
+        red();
+        printf("\t6. Exit\n");
+        reset();
+        printf("\nPlease choose a number\n");
+        printf("Enter number : ");
         scanf("%d", &select);
-        switch(select)
+        switch (select)
         {
-            case 1: s_add();
-                    break;
-            case 2: s_del();
-                    break;
-            case 3: p_add();
-                    break;
-            case 4: p_del();
-                    break;
-            case 5: p_edit();
-                    break;
-            case 6: submit = 'N';
-                    break;
-            default: printf("Wrong choice\n");
-                     printf("PRESS ANY KEY TO CONTINUE\n");
-                     getch();
+        case 1:
+            system("cls");
+            show(person = 1);
+            s_add();
+            break;
+        case 2:
+            system("cls");
+            show(person = 1);
+            s_del();
+            break;
+        case 3:
+            system("cls");
+            show(person = 1);
+            p_add();
+            break;
+        case 4:
+            system("cls");
+            show(person = 1);
+            p_del();
+            break;
+        case 5:
+            system("cls");
+            show(person = 1);
+            p_edit();
+            break;
+        case 6:
+            submit = 'N';
+            break;
+        default:
+            red();
+            printf("\nWrong number\n");
+            printf("Press any key to continue\n");
+            reset();
+            getch();
         }
         if (submit == 'N')
             break;
     };
 };
 
-int main() {
+int main()
+{
     do
     {
         system("cls");
-        printf("1.User\n");
-        printf("2.Admin\n");
+        intro();
+        yellow();
+        center("----Welcome----", 80);
+        printf("\n");
+        center("1.Customer", 80);
+        center("2.Owner", 80);
+        printf("\n\n");
+        reset();
+        printf("Please choose a number\n");
+        printf("Enter number : ");
         scanf("%d", &select);
-        switch(select)
+        switch (select)
         {
-            case 1: user();
-                    break;
-            case 2: admin();
-                    break;
-            default: printf("Wrong choice\n");
-                     printf("PRESS ANY KEY TO CONTINUE\n");
-                     getch();
+        case 1:
+            user();
+            break;
+        case 2:
+            admin();
+            break;
+        default:
+            red();
+            printf("\nWrong number\n");
+            printf("Press any key to continue\n");
+            reset();
+            getch();
         }
         system("cls");
+        intro();
         printf("Do you want to exit? (Y/N)\n");
-        printf("Yes - Exit Program\n");
-        printf("No - Back to Menu page\n");
+        printf("\n Yes - Exit Program\n");
+        green();
+        printf(" No - Back to Menu page\n\n");
+        reset();
         fflush(stdin);
-        scanf(" %c", &submit);
+        scanf("%c", &submit);
     } while (toupper(submit) == 'N');
     return 0;
 }
-
