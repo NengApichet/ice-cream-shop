@@ -131,7 +131,7 @@ char *check_stock(int step)
 {
     if (products[step].remain > 0)
         return "In stock";
-    return "Out of stock";
+    return "Sold out";
 }
 
 int find(int choose)
