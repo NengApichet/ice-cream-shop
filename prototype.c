@@ -8,7 +8,7 @@
 //Global variables
 int d_cargo = 10;
 char submit;
-int choose = 0;
+int choose;
 int person = 0;
 int amount;
 int position;
@@ -21,16 +21,16 @@ struct stock
     float price;
     int remain;
 } products[CARGO] = {
-    {"Chocolate", 100, 10},
-    {"Cookies and cream", 150, 10},
-    {"Green tea", 200, 10},
-    {"Mango", 250, 10},
-    {"Raspberry Ripple", 300, 10},
-    {"Strawberry", 350, 10},
-    {"Vanilla", 400, 10},
-    {"Hokey pokey", 450, 10},
-    {"Cotton candy", 500, 10},
-    {"Grape", 550, 10},
+    {"Chocolate", 20, 10},
+    {"Cookies and cream", 10, 10},
+    {"Green tea", 15, 10},
+    {"Mango", 25, 10},
+    {"Raspberry Ripple", 10, 10},
+    {"Strawberry", 20, 10},
+    {"Vanilla", 20, 10},
+    {"Hokey pokey", 10, 10},
+    {"Cotton candy", 25, 10},
+    {"Grape", 30, 10},
 };
 
 //Function prototypes
@@ -39,6 +39,7 @@ void center(char *s, int width);
 void show(int person);
 void search();
 void buy();
+void pay(int pos);
 void user();
 void admin();
 void p_add();
@@ -54,14 +55,14 @@ void reset();
 char *check_stock(int step);
 int find(int choose);
 
-void red()
-{
-    printf("\033[1;31m");
-}
-
 void cyan()
 {
     printf("\033[0;36m");
+}
+
+void red()
+{
+    printf("\033[1;31m");
 }
 
 void yellow()
@@ -81,8 +82,8 @@ void reset()
 
 void intro()
 {
+
     cyan();
-    printf("\n\n");
     printf("\t****************************************************************************\n");
     printf("\t*    _                                                _                    *\n");
     printf("\t*   (_)                                              | |                   *\n");
@@ -108,16 +109,20 @@ void center(char *txt, int width)
 
 void show(int person)
 {
+    center("Menu", 80);
     printf("\t ------------------------------------------------------------------ \n");
     printf("\t|  No. | Name\t\t\t\t| Price\t\t| Stock    |\n");
     printf("\t ------------------------------------------------------------------ \n");
     for (i = 0; i < d_cargo; ++i)
     {
+        if (products[i].remain <= 0)
+            red();
         printf("\t|  %02d. | %-15s\t\t| %.2f Baht", i + 1, products[i].name, products[i].price);
         if (person)
             printf("\t| %d\t   |\n", products[i].remain);
         else
             printf("\t| %s |\n", check_stock(i));
+        reset();
     }
     printf("\t ------------------------------------------------------------------ \n");
 }
@@ -136,14 +141,16 @@ int find(int choose)
         if (choose - 1 == i)
             return i;
     }
+    return -1;
 };
 
 void search()
 {
     system("cls");
-    char p_name[30], find[30];
+    char p_name[30], finds[30], check;
     int c = 0, n = 1, keep[20];
-    printf("search\n");
+    printf("--- Search ---\n");
+    printf("Type whatever you want...\n");
     fflush(stdin);
     scanf("%[^\n]s", &p_name);
     for (i = 0; i < d_cargo; ++i)
@@ -152,68 +159,110 @@ void search()
         {
             for (int k = 0; k < strlen(p_name); ++k)
             {
-                /*if (tolower(p_name[k]) == tolower(products[i].name[j]))
-                    keep[c++] = i;
-                */
-                find[k] = tolower(products[i].name[k + j]);
-                find[k + 1] = '\0';
+                finds[k] = tolower(products[i].name[k + j]);
+                finds[k + 1] = '\0';
             }
-
-            //printf("%s\n", find);
-            if (!strcmp(find, p_name))
+            if (!strcmp(finds, p_name))
                 keep[c++] = i;
         }
     }
+    printf("\n");
     for (i = 0; i < c; ++i)
     {
         if (keep[i] != keep[i + 1])
             printf("%02d. %s %.2f Baht\n", n++, products[keep[i]].name, products[keep[i]].price);
     }
     if (c == 0)
-        printf("not found\n");
-    printf("PRESS ANY KEY TO CONTINUE\n");
-    getch();
+    {
+        red();
+        printf("\nNot found\n");
+        printf("Press any key to continue\n");
+        reset();
+        getch();
+    }
+    else
+    {
+        printf("\n\nDo you want to buy something in here ? (Y/N)\n");
+        fflush(stdin);
+        scanf("%c", &check);
+        if (toupper(check) == 'Y')
+        {
+            printf("\n\tSelect Number ");
+            printf(i == 1 ? ": " : "(1-%d) : ", i);
+            scanf("%d", &choose);
+            pay(find(choose));
+        }
+    }
 }
 
 void buy()
 {
     system("cls");
-    int count;
-    float money, total;
+
     show(person = 0);
-    printf("buy (1-10) : ");
+    cyan();
+    printf("\t--- Buy Products ---\n");
+    printf("\tSelect Number (1-%d) : ", d_cargo);
     scanf("%d", &choose);
-    printf("amount (number only) : ");
-    scanf("%d", &count);
+    reset();
     position = find(choose);
     if (position == -1)
     {
-        printf("\n---------------------\n");
-        printf("not found\n");
-        printf("---------------------\n");
+        red();
+        printf("\n--------------------\n\n");
+        printf("Not found\n");
+        printf("Press any key to continue\n");
+        reset();
+        getch();
+    }
+    else
+        pay(position);
+}
+
+void pay(int pos)
+{
+    int count;
+    float money, total;
+    printf("\tQuantity (limit %d) : ", products[pos].remain);
+    scanf("%d", &count);
+    if (count > products[pos].remain)
+    {
+        red();
+        printf("\nSorry, stock of product is not enough\n");
     }
     else
     {
-        total = products[position].price * count;
-        printf("\n---------------------\n");
-        printf("Name : %s x %d\n", products[position].name, count);
+        total = products[pos].price * count;
+        printf("\n--------------------\n\n");
+        printf("Name : %s x %d\n", products[pos].name, count);
         printf("Total : %.2f Baht\n", total);
-        printf("---------------------\n");
+        printf("\n--------------------\n\n");
         printf("Do you want to buy this product? (Y/N)\n");
         fflush(stdin);
         scanf("%c", &submit);
         if (toupper(submit) == 'Y')
         {
-            printf("\n---------------------\n");
+            printf("\n--------------------\n\n");
             printf("Your cash : ");
             scanf("%f", &money);
-            printf("Balance : %.2f\n", money - total);
-            printf("Thankyou!!!\n");
-            printf("---------------------\n");
-            products[position].remain -= count;
+            if (money < total)
+            {
+                printf("\n--------------------\n\n");
+                red();
+                printf("Sorry, Your money is not enough\n");
+            }
+            else
+            {
+                printf("Balance : %.2f Baht\n", money - total);
+                printf("\n--------------------\n\n");
+                green();
+                printf("Thank you\n");
+                products[pos].remain -= count;
+            }
         }
     }
-    printf("PRESS ANY KEY TO CONTINUE\n");
+    printf("Press any key to continue\n");
+    reset();
     getch();
 }
 
@@ -243,7 +292,7 @@ void user()
         break;
     default:
         red();
-        printf("\nWrong number\n");
+        printf("Invalid Number! Please enter number between 1 to 3 \n");
         printf("Press any key to continue\n");
         reset();
         getch();
@@ -257,7 +306,7 @@ void s_add()
     printf("\tSelect Product (1-%d): ", d_cargo);
     scanf("%d", &choose);
     reset();
-    printf("Add : ");
+    printf("\n\nQuantity (numbers only) : ");
     scanf("%d", &amount);
     position = find(choose);
     products[position].remain += amount;
@@ -266,11 +315,11 @@ void s_add()
 void s_del()
 {
     yellow();
-    printf("\t--- Del Stock ---\n");
+    printf("\t--- Remove Stock ---\n");
     printf("\tSelect Product (1-%d): ", d_cargo);
     scanf("%d", &choose);
     reset();
-    printf("Del : ");
+    printf("\n\nQuantity (numbers only) : ");
     scanf("%d", &amount);
     position = find(choose);
     products[position].remain -= amount;
@@ -281,13 +330,13 @@ void s_del()
 void p_add()
 {
     yellow();
-    printf("\t--- Add Product ---\n");
+    printf("\t--- Add Product ---\n\n");
     reset();
     printf("Name Product : ");
     scanf("%s", &products[d_cargo].name);
-    printf("Price Product : ");
+    printf("\nPrice Product (numbers only) : ");
     scanf("%f", &products[d_cargo].price);
-    printf("Stock Product : ");
+    printf("\nStock Product (numbers only) : ");
     scanf("%d", &products[d_cargo].remain);
     d_cargo++;
 }
@@ -295,7 +344,7 @@ void p_add()
 void p_del()
 {
     yellow();
-    printf("\t--- Del Product ---\n");
+    printf("\t--- Delete Product ---\n");
     printf("\tSelect Product (1-%d): ", d_cargo);
     scanf("%d", &choose);
     reset();
@@ -305,8 +354,9 @@ void p_del()
     }
     else
     {
-        printf("Are you sure? (Y/N)\n");
-        scanf(" %c", &submit);
+        printf("\n\nAre you sure? (Y/N)\n");
+        fflush(stdin);
+        scanf("%c", &submit);
         if (toupper(submit) == 'Y')
         {
             for (i = choose - 1; i < d_cargo - 1; ++i)
@@ -351,7 +401,7 @@ void p_edit()
         break;
     default:
         red();
-        printf("\nWrong number\n");
+        printf("Invalid Number! Please enter number between 1 to 3 \n");
         printf("Press any key to continue\n");
         reset();
         getch();
@@ -368,9 +418,9 @@ void admin()
         printf("\n\t--- Options ---\n");
         cyan();
         printf("\t1. Add Stock\n");
-        printf("\t2. Del Stock\n");
+        printf("\t2. Remove Stock\n");
         printf("\t3. Add Product\n");
-        printf("\t4. Del Product\n");
+        printf("\t4. Delete Product\n");
         printf("\t5. Edit Product\n");
         red();
         printf("\t6. Exit\n");
@@ -410,7 +460,7 @@ void admin()
             break;
         default:
             red();
-            printf("\nWrong number\n");
+            printf("Invalid Number! Please enter number between 1 to 6 \n");
             printf("Press any key to continue\n");
             reset();
             getch();
@@ -446,7 +496,7 @@ int main()
             break;
         default:
             red();
-            printf("\nWrong number\n");
+            printf("Invalid Number! Please enter number between 1 or 2\n");
             printf("Press any key to continue\n");
             reset();
             getch();
@@ -454,9 +504,9 @@ int main()
         system("cls");
         intro();
         printf("Do you want to exit? (Y/N)\n");
-        printf("\n Yes - Exit Program\n");
+        printf("\nYes - Exit Program\n");
         green();
-        printf(" No - Back to Menu page\n\n");
+        printf("No - Back to Menu page\n\n");
         reset();
         fflush(stdin);
         scanf("%c", &submit);
