@@ -3,7 +3,8 @@
 #include <string.h>
 #include <ctype.h>
 #include <conio.h>
-#define CARGO 20
+
+#define CARGO 20 //ประกาศใช้ใน array of struct stock
 
 //Global variables
 int d_cargo = 10;
@@ -13,47 +14,120 @@ int person = 0;
 int amount;
 int position;
 int select;
-int i;
+int i, j, k;
 
 struct stock
 {
     char name[30];
     float price;
     int remain;
-} products[CARGO] = {
-    {"Chocolate", 20, 10},
-    {"Cookies and cream", 10, 10},
-    {"Green tea", 15, 10},
-    {"Mango", 25, 10},
-    {"Raspberry Ripple", 10, 10},
-    {"Strawberry", 20, 10},
-    {"Vanilla", 20, 10},
-    {"Hokey pokey", 10, 10},
-    {"Cotton candy", 25, 10},
-    {"Grape", 30, 10},
-};
+} products[CARGO];
+
+/*
+ตัวใหม่ที่คิดว่า ไม่เคยเจอ
+    fflush(stdin);
+    system("cls"); ดึงจาก --> stdlib.h
+    atoi(); ดึงจาก --> stdlib.h
+    atof(); ดึงจาก --> stdlib.h
+    getch(); ดึงจาก  --> conio.h
+*/
 
 //Function prototypes
-void intro();
-void center(char *s, int width);
-void show(int person);
-void search();
-void buy();
-void pay(int pos);
-void user();
-void admin();
-void p_add();
-void p_del();
-void s_add();
-void s_del();
-void p_edit();
-void red();
-void cyan();
-void green();
-void yellow();
-void reset();
-char *check_stock(int step);
-int find(int choose);
+void intro();                    //ป้ายร้าน
+void center(char *s, int width); //จัดข้อความให้อยู่ตรงกลาง
+void show(int person);           //แสดงตารางสินค้า
+void search();                   //ค้นหาสินค้า
+void buy();                      //เลือกซื้อสินค้า
+void pay(int pos);               //จ่ายเงิน
+void user();                     //แสดงหน้าผู้ใข้
+void admin();                    //แสดงหน้า admin
+void p_add();                    //เพิ่มสต๊อกสินค้า
+void p_del();                    //ลดสต๊อกสินค้า
+void s_add();                    //เพิ่มสินค้า
+void s_del();                    //ลดสินค้า
+void p_edit();                   //แก้ไขสินค้า
+void red();                      //แสดงข้อความสีแดง
+void cyan();                     //แสดงข้อความสีฟ้าอ่อน
+void green();                    //แสดงข้อความสีเขียว
+void yellow();                   //แสดงข้อความสีเหลือง
+void reset();                    //คืนค่าสีข้อความปกติ
+char *check_stock(int step);     //แสดงสินค้าคงเหลือ สำหรับผู้ใช้
+int find(int choose);            //หาตำแหน่งสินค้า
+
+int main()
+{
+    FILE *fp;
+    fp = fopen("menu.txt", "r");
+    char temp_name[30];
+    char temp_number[5];
+
+    if (!fp)
+    {
+        printf("Program can't find \"menu.txt\"");
+        getch();
+        return 1;
+    }
+
+    for (i = 0; i < 10; ++i)
+    {
+        fscanf(fp, "%s", temp_name);
+        for (j = 0; temp_name[j] != '\0'; ++j)
+        {
+            if (temp_name[j] == '_')
+            {
+                temp_name[j] = 32; //space
+            }
+        }
+        strcpy(products[i].name, temp_name);
+        fscanf(fp, "%s", temp_number);
+        products[i].price = atof(temp_number);
+        fscanf(fp, "%s", temp_number);
+        products[i].remain = atoi(temp_number);
+    }
+    fclose(fp);
+
+    do
+    {
+        system("cls");
+        intro();
+        yellow();
+        center("----Welcome----", 80);
+        printf("\n");
+        center("1.Customer", 80);
+        center("2.Owner", 80);
+        printf("\n\n");
+        reset();
+
+        printf("Please choose a number\n");
+        printf("Enter number : ");
+        scanf("%d", &select);
+        switch (select)
+        {
+        case 1:
+            user();
+            break;
+        case 2:
+            admin();
+            break;
+        default:
+            red();
+            printf("Invalid Number! Please enter number between 1 or 2\n");
+            printf("Press any key to continue\n");
+            reset();
+            getch();
+        }
+        system("cls");
+        intro();
+        printf("Do you want to exit? (Y/N)\n");
+        printf("\nYes - Exit Program\n");
+        green();
+        printf("No - Back to Menu page\n\n");
+        reset();
+        fflush(stdin);
+        scanf("%c", &submit);
+    } while (toupper(submit) == 'N');
+    return 0;
+}
 
 void cyan()
 {
@@ -147,30 +221,37 @@ int find(int choose)
 void search()
 {
     system("cls");
-    char p_name[30], finds[30], check;
-    int c = 0, n = 1, keep[20];
+    char p_name[30], finds[30], temp[20][30], check;
+    int keep[20];
+    int c = 0;
+    int n = 0;
     printf("--- Search ---\n");
     printf("Type whatever you want...\n");
     fflush(stdin);
     scanf("%[^\n]s", &p_name);
     for (i = 0; i < d_cargo; ++i)
     {
-        for (int j = 0; j < strlen(products[i].name); ++j)
+        for (j = 0; j < strlen(products[i].name); ++j)
         {
-            for (int k = 0; k < strlen(p_name); ++k)
+            for (k = 0; k < strlen(p_name); ++k)
             {
                 finds[k] = tolower(products[i].name[k + j]);
                 finds[k + 1] = '\0';
             }
-            if (!strcmp(finds, p_name))
+            if (strcmp(finds, p_name) == 0) {
                 keep[c++] = i;
+            }
         }
     }
+    
     printf("\n");
     for (i = 0; i < c; ++i)
     {
-        if (keep[i] != keep[i + 1])
-            printf("%02d. %s %.2f Baht\n", n++, products[keep[i]].name, products[keep[i]].price);
+        if (keep[i] != keep[i + 1] || c == 1)
+        {
+            printf("%02d. %s %.2f Baht\n", n + 1, products[keep[i]].name, products[keep[i]].price);
+            strcpy(temp[n++], products[keep[i]].name);
+        }
     }
     if (c == 0)
     {
@@ -187,10 +268,30 @@ void search()
         scanf("%c", &check);
         if (toupper(check) == 'Y')
         {
-            printf("\n\tSelect Number ");
-            printf(i == 1 ? ": " : "(1-%d) : ", i);
-            scanf("%d", &choose);
-            pay(find(choose));
+            if (n == 1)
+            {
+                for (i = 0; i < d_cargo; ++i)
+                {
+                    if (strcmp(products[i].name, temp[0]) == 0)
+                    {
+                        pay(i);
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                printf("\n\tSelect Number (1-%d) : ", n);
+                scanf("%d", &choose);
+                for (i = 0; i < d_cargo; ++i)
+                {
+                    if (strcmp(products[i].name, temp[choose-1]) == 0)
+                    {
+                        pay(i);
+                        break;
+                    }
+                }
+            }
         }
     }
 }
@@ -198,7 +299,6 @@ void search()
 void buy()
 {
     system("cls");
-
     show(person = 0);
     cyan();
     printf("\t--- Buy Products ---\n");
@@ -283,7 +383,6 @@ void user()
     {
     case 1:
         buy();
-        ;
         break;
     case 2:
         search();
@@ -292,7 +391,7 @@ void user()
         break;
     default:
         red();
-        printf("Invalid Number! Please enter number between 1 to 3 \n");
+        printf("\nInvalid Number! Please enter number between 1 to 3 \n");
         printf("Press any key to continue\n");
         reset();
         getch();
@@ -306,10 +405,21 @@ void s_add()
     printf("\tSelect Product (1-%d): ", d_cargo);
     scanf("%d", &choose);
     reset();
-    printf("\n\nQuantity (numbers only) : ");
-    scanf("%d", &amount);
-    position = find(choose);
-    products[position].remain += amount;
+    if (choose < 0 || choose > d_cargo)
+    {
+        red();
+        printf("\nInvalid Number! Please enter number between 1 to %d\n", d_cargo);
+        printf("Press any key to continue\n");
+        reset();
+        getch();
+    }
+    else
+    {
+        printf("\n\nQuantity (numbers only) : ");
+        scanf("%d", &amount);
+        position = find(choose);
+        products[position].remain += amount;
+    }
 }
 
 void s_del()
@@ -319,12 +429,23 @@ void s_del()
     printf("\tSelect Product (1-%d): ", d_cargo);
     scanf("%d", &choose);
     reset();
-    printf("\n\nQuantity (numbers only) : ");
-    scanf("%d", &amount);
-    position = find(choose);
-    products[position].remain -= amount;
-    if (products[position].remain < 0)
-        products[position].remain = 0;
+    if (choose < 0 || choose > d_cargo)
+    {
+        red();
+        printf("\nInvalid Number! Please enter number between 1 to %d\n", d_cargo);
+        printf("Press any key to continue\n");
+        reset();
+        getch();
+    }
+    else
+    {
+        printf("\n\nQuantity (numbers only) : ");
+        scanf("%d", &amount);
+        position = find(choose);
+        products[position].remain -= amount;
+        if (products[position].remain < 0)
+            products[position].remain = 0;
+    }
 }
 
 void p_add()
@@ -333,7 +454,8 @@ void p_add()
     printf("\t--- Add Product ---\n\n");
     reset();
     printf("Name Product : ");
-    scanf("%s", &products[d_cargo].name);
+    fflush(stdin);
+    scanf("%[^\n]s", &products[d_cargo].name);
     printf("\nPrice Product (numbers only) : ");
     scanf("%f", &products[d_cargo].price);
     printf("\nStock Product (numbers only) : ");
@@ -350,7 +472,11 @@ void p_del()
     reset();
     if (choose < 0 || choose > d_cargo)
     {
-        printf("Invalid Number! Please enter number between 1 to %d\n", d_cargo);
+        red();
+        printf("\nInvalid Number! Please enter number between 1 to %d\n", d_cargo);
+        printf("Press any key to continue\n");
+        reset();
+        getch();
     }
     else
     {
@@ -372,45 +498,56 @@ void p_edit()
     printf("\t--- Edit Product ---\n");
     printf("\tSelect Product (1-%d): ", d_cargo);
     scanf("%d", &choose);
-    green();
-    printf("\t1. Edit Name\n");
-    printf("\t2. Edit Price\n");
-    printf("\t3. Edit Stock\n");
-    reset();
-    printf("\nPlease choose a number\n");
-    printf("Enter number : ");
-    scanf("%d", &select);
-    printf("\n");
-    choose -= 1;
-    switch (select)
+    if (choose < 0 || choose > d_cargo)
     {
-    case 1:
-        printf("Old Name Product : %s\n", products[choose].name);
-        printf("New Name Product : ");
-        scanf("%s", &products[choose].name);
-        break;
-    case 2:
-        printf("Old Price Product : %.2f Baht\n", products[choose].price);
-        printf("New Price Product : ");
-        scanf("%f", &products[choose].price);
-        break;
-    case 3:
-        printf("Old Remain Product : %d\n", products[choose].remain);
-        printf("New Remain Product : ");
-        scanf("%d", &products[choose].remain);
-        break;
-    default:
         red();
-        printf("Invalid Number! Please enter number between 1 to 3 \n");
+        printf("\nInvalid Number! Please enter number between 1 to %d\n", d_cargo);
         printf("Press any key to continue\n");
         reset();
         getch();
+    }
+    else
+    {
+        green();
+        printf("\t1. Edit Name\n");
+        printf("\t2. Edit Price\n");
+        printf("\t3. Edit Stock\n");
+        reset();
+        printf("\nPlease choose a number\n");
+        printf("Enter number : ");
+        scanf("%d", &select);
+        printf("\n");
+        choose -= 1;
+        switch (select)
+        {
+        case 1:
+            printf("Old Name Product : %s\n", products[choose].name);
+            printf("New Name Product : ");
+            scanf("%s", &products[choose].name);
+            break;
+        case 2:
+            printf("Old Price Product : %.2f Baht\n", products[choose].price);
+            printf("New Price Product : ");
+            scanf("%f", &products[choose].price);
+            break;
+        case 3:
+            printf("Old Remain Product : %d\n", products[choose].remain);
+            printf("New Remain Product : ");
+            scanf("%d", &products[choose].remain);
+            break;
+        default:
+            red();
+            printf("\nInvalid Number! Please enter number between 1 to 3 \n");
+            printf("Press any key to continue\n");
+            reset();
+            getch();
+        }
     }
 }
 
 void admin()
 {
-    while (1)
+    while (1) //1 == true
     {
         system("cls");
         show(person = 1);
@@ -469,47 +606,3 @@ void admin()
             break;
     };
 };
-
-int main()
-{
-    do
-    {
-        system("cls");
-        intro();
-        yellow();
-        center("----Welcome----", 80);
-        printf("\n");
-        center("1.Customer", 80);
-        center("2.Owner", 80);
-        printf("\n\n");
-        reset();
-        printf("Please choose a number\n");
-        printf("Enter number : ");
-        scanf("%d", &select);
-        switch (select)
-        {
-        case 1:
-            user();
-            break;
-        case 2:
-            admin();
-            break;
-        default:
-            red();
-            printf("Invalid Number! Please enter number between 1 or 2\n");
-            printf("Press any key to continue\n");
-            reset();
-            getch();
-        }
-        system("cls");
-        intro();
-        printf("Do you want to exit? (Y/N)\n");
-        printf("\nYes - Exit Program\n");
-        green();
-        printf("No - Back to Menu page\n\n");
-        reset();
-        fflush(stdin);
-        scanf("%c", &submit);
-    } while (toupper(submit) == 'N');
-    return 0;
-}

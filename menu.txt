@@ -1,0 +1,10 @@
+Cookies_and_cream 20 10
+Green_tea 10 10
+Mango 25 10
+Raspberry_Ripple 30 10
+Strawberry 35 10
+Vanilla 40 10
+Hokey_pokey 45 10
+Cotton_candy 50 10
+Grape 55 10
+Chocolate 60 10
